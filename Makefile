@@ -1,15 +1,15 @@
-postgres:
-	docker run --name  postgres12 -p 5432:5432 -e POSTGRES_USER=root  -e POSTGRES_PASSWORD=secret -d postgres
+mysql:
+	docker run --name  mysql-auth-service -p 33068:3306   -e MYSQL_ROOT_PASSWORD=secret -d mysql
 
 createdb:
-	docker exec -it postgres12 createdb --username=root --owner=root simple_bank
+	docker exec -it mysql-auth-service  mysqladmin -uroot -psecret create mysql_auth_service ;
 
 dropdb:
-	docker exec -it postgres12 dropdb simple_bank
+	docker exec -it mysql-auth-service mysqladmin drop mysql_auth_service -f -uroot -psecret
 migrateup:
-	migrate -path db/migration --database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up
+	migrate -path db/migration --database "mysql://root:secret@tcp(127.0.0.1:33068)/mysql_auth_service"  -verbose up
 migratedown:
-	migrate -path db/migration --database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose down
+	migrate -path db/migration --database "mysql://root:secret@tcp(127.0.0.1:33068)/mysql_auth_service"  -verbose down
 sqlc:
 	sqlc generate
 test:
